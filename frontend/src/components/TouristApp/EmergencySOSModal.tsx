@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
 import { SOSIncident } from '../../types';
-import { AlertOctagon, PhoneCall, XCircle, CheckCircle2, ShieldAlert, Radio, Battery, MapPin, X } from 'lucide-react';
+import { AlertOctagon, PhoneCall, XCircle, CheckCircle2, ShieldAlert, Radio, Battery, MapPin, X, Camera, Image, Trash2 } from 'lucide-react';
 
 interface EmergencySOSModalProps {
   isOpen: boolean;
@@ -24,8 +24,21 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
   const [isActivating, setIsActivating] = useState(false);
   const [cancelModal, setCancelModal] = useState(false);
   const [cancelReason, setCancelReason] = useState('Accidental activation');
+  const [photoData, setPhotoData] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const holdIntervalRef = useRef<any>(null);
+
+  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setPhotoData(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   // Trigger hold counter
   const startHold = () => {
@@ -70,7 +83,8 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
         lng: touristLng,
         battery_level: 68,
         accuracy_meters: 6.5,
-        notes: 'Emergency SOS activated from mobile interface.'
+        image_data: photoData || undefined,
+        notes: photoData ? 'Emergency SOS activated with live scene photo attachment.' : 'Emergency SOS activated from mobile interface.'
       }, connectivity === 'ONLINE');
 
       setActiveIncident(res);
@@ -123,18 +137,15 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
         <div className="p-6 space-y-6">
           {!activeIncident ? (
             /* Pre-Activation Interface */
-            <div className="flex flex-col items-center text-center space-y-6">
+            <div className="flex flex-col items-center text-center space-y-5">
               <div className="space-y-1">
                 <p className="text-slate-300 font-medium text-sm">
                   Press and hold the button for <strong className="text-white">3 seconds</strong> to trigger emergency rescue.
                 </p>
-                <p className="text-xs text-slate-400">
-                  Your coordinates, battery health, and DRISHTI identity will be dispatched immediately.
-                </p>
               </div>
 
               {/* 3-Second Tactile Hold Button with SVG Ring */}
-              <div className="relative flex items-center justify-center my-4">
+              <div className="relative flex items-center justify-center my-2">
                 {/* Circular Progress Indicator */}
                 <svg className="w-48 h-48 transform -rotate-90 pointer-events-none">
                   <circle
@@ -176,8 +187,50 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
                 </button>
               </div>
 
+              {/* === Camera / Photo Attachment === */}
+              <div className="w-full">
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={handlePhotoCapture}
+                />
+                {photoData ? (
+                  /* Thumbnail preview */
+                  <div className="relative flex items-center gap-3 bg-slate-800/80 border border-emerald-500/40 rounded-xl p-2.5">
+                    <img
+                      src={photoData}
+                      alt="Scene snapshot"
+                      className="w-14 h-14 object-cover rounded-lg border border-slate-600 shrink-0"
+                    />
+                    <div className="flex-1 text-left">
+                      <p className="text-xs font-semibold text-emerald-400 flex items-center gap-1.5">
+                        <Image className="w-3.5 h-3.5" /> Photo attached
+                      </p>
+                      <p className="text-[10px] text-slate-400 mt-0.5">Will be sent with your SOS signal</p>
+                    </div>
+                    <button
+                      onClick={() => setPhotoData(null)}
+                      className="p-1.5 rounded-lg bg-slate-700 hover:bg-red-900/60 text-slate-400 hover:text-red-300 transition-colors cursor-pointer shrink-0"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full flex items-center justify-center gap-2.5 py-2.5 rounded-xl border border-dashed border-slate-600 hover:border-amber-500/60 bg-slate-800/50 hover:bg-amber-950/20 text-slate-400 hover:text-amber-300 text-xs font-semibold transition-all cursor-pointer"
+                  >
+                    <Camera className="w-4 h-4" />
+                    <span>Open Camera — Snap Scene Photo</span>
+                  </button>
+                )}
+              </div>
+
               {/* Instant Tap Fallback for Rapid Emergency */}
-              <div className="w-full pt-2">
+              <div className="w-full">
                 <button
                   onClick={triggerEmergency}
                   disabled={isActivating}
@@ -191,12 +244,12 @@ export const EmergencySOSModal: React.FC<EmergencySOSModalProps> = ({
               {/* Status Meta */}
               <div className="w-full grid grid-cols-3 gap-2 text-center text-xs bg-slate-800/60 p-2.5 rounded-xl border border-slate-700/60">
                 <div>
-                  <span className="text-[10px] text-slate-400 block">GPS Position</span>
+                  <span className="text-[10px] text-slate-400 block">GPS</span>
                   <span className="font-mono text-white text-[11px] font-semibold">{touristLat.toFixed(4)}, {touristLng.toFixed(4)}</span>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 block">Accuracy</span>
-                  <span className="text-emerald-400 text-[11px] font-semibold">±6.5m (GPS Locked)</span>
+                  <span className="text-emerald-400 text-[11px] font-semibold">±6.5m</span>
                 </div>
                 <div>
                   <span className="text-[10px] text-slate-400 block">Mode</span>

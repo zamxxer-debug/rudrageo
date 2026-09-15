@@ -6,12 +6,14 @@ from database import get_db
 from models.user import User
 from models.zone import Destination, RiskZone, EmergencyFacility
 from schemas.zone import (
+    RiskZoneCreate,
     RiskZoneResponse,
     DestinationResponse,
     EmergencyFacilityResponse,
     ProximityCheckRequest,
     ProximityCheckResponse
 )
+import uuid
 from services.auth_service import get_current_user, require_roles
 from services.geofence_service import geofence_service
 from services.risk_service import risk_service
@@ -24,6 +26,35 @@ def get_zones(destination_id: Optional[str] = None, db: Session = Depends(get_db
     if destination_id:
         query = query.filter(RiskZone.destination_id == destination_id)
     return query.all()
+
+@router.post("", response_model=RiskZoneResponse, status_code=status.HTTP_201_CREATED)
+def create_zone(data: RiskZoneCreate, db: Session = Depends(get_db)):
+    # Find destination if not provided
+    dest_id = data.destination_id
+    if not dest_id:
+        dest = db.query(Destination).first()
+        dest_id = dest.id if dest else str(uuid.uuid4())
+
+    new_zone = RiskZone(
+        id=str(uuid.uuid4()),
+        destination_id=dest_id,
+        zone_code=data.zone_code.strip().upper(),
+        name=data.name.strip(),
+        description=data.description,
+        zone_type=data.zone_type,
+        risk_level=data.risk_level,
+        geometry_type=data.geometry_type,
+        coordinates_json=data.coordinates_json,
+        radius_meters=data.radius_meters or 250.0,
+        warning_distance_meters=data.warning_distance_meters or 100.0,
+        is_restricted=bool(data.is_restricted),
+        safety_instructions=data.safety_instructions
+    )
+    db.add(new_zone)
+    db.commit()
+    db.refresh(new_zone)
+    return new_zone
+
 
 @router.get("/destinations", response_model=List[DestinationResponse])
 def get_destinations(db: Session = Depends(get_db)):

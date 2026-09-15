@@ -67,7 +67,8 @@ app.include_router(payment_router)
 app.include_router(blockchain_router)
 app.include_router(analytics_router)
 app.include_router(audit_router)
-app.include_router(health_router)
+app.include_router(health_router, prefix="/api/health")
+app.include_router(health_router, prefix="/health")
 
 # Real-time WebSocket Endpoint
 @app.websocket("/ws/alerts")
@@ -92,5 +93,7 @@ def root():
     }
 
 if __name__ == "__main__":
+
+
     import uvicorn
     uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

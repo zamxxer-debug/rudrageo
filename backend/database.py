@@ -1,15 +1,34 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from config import settings
 
+database_url = settings.DATABASE_URL or "sqlite:///./rudra.db"
+
+# Supabase / Render URL normalization
+if database_url.startswith("postgres://"):
+    database_url = database_url.replace("postgres://", "postgresql+psycopg2://", 1)
+elif database_url.startswith("postgresql://") and not database_url.startswith("postgresql+psycopg2://"):
+    database_url = database_url.replace("postgresql://", "postgresql+psycopg2://", 1)
+
 connect_args = {}
-if settings.DATABASE_URL.startswith("sqlite"):
-    connect_args = {"check_same_thread": False}
+engine_kwargs = {"echo": False}
+
+if database_url.startswith("sqlite"):
+    connect_args["check_same_thread"] = False
+else:
+    # PostgreSQL / Supabase pool configuration
+    engine_kwargs.update({
+        "pool_pre_ping": True,
+        "pool_recycle": 300,
+        "pool_size": 10,
+        "max_overflow": 20
+    })
 
 engine = create_engine(
-    settings.DATABASE_URL,
+    database_url,
     connect_args=connect_args,
-    echo=False
+    **engine_kwargs
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -22,3 +41,4 @@ def get_db():
         yield db
     finally:
         db.close()
+

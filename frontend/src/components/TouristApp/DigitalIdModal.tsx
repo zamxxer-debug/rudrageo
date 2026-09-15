@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
 import { api } from '../../services/api';
 import { DigitalIdData } from '../../types';
-import { ShieldCheck, X, CheckCircle2, AlertTriangle, Share2, Award, Copy, Check } from 'lucide-react';
+import { ShieldCheck, X, CheckCircle2, AlertTriangle, Award, Copy, Check, Download } from 'lucide-react';
 
 interface DigitalIdModalProps {
   isOpen: boolean;
@@ -45,6 +45,26 @@ export const DigitalIdModal: React.FC<DigitalIdModalProps> = ({ isOpen, onClose 
   const copyId = () => {
     if (!digitalId) return;
     navigator.clipboard.writeText(digitalId.drishti_id);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const downloadQr = () => {
+    const svg = document.getElementById('drishti-qr-code');
+    if (!svg) return;
+    const source = new XMLSerializer().serializeToString(svg);
+    const blob = new Blob([source], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${digitalId?.drishti_id || 'drishti-id'}.svg`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const copyQrPayload = async () => {
+    if (!digitalId) return;
+    await navigator.clipboard.writeText(digitalId.qr_payload_encoded);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -97,11 +117,20 @@ export const DigitalIdModal: React.FC<DigitalIdModalProps> = ({ isOpen, onClose 
                 <div className="flex flex-col items-center my-3">
                   <div className="p-3 bg-white rounded-xl shadow-md border-2 border-slate-200">
                     <QRCodeSVG
+                      id="drishti-qr-code"
                       value={digitalId.qr_payload_encoded}
                       size={170}
                       level="H"
                       includeMargin={false}
                     />
+                  </div>
+                  <div className="flex items-center gap-2 mt-3">
+                    <button onClick={downloadQr} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-slate-200 hover:bg-slate-700">
+                      <Download className="w-3.5 h-3.5" /> Download QR
+                    </button>
+                    <button onClick={copyQrPayload} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-slate-200 hover:bg-slate-700">
+                      {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />} Copy QR data
+                    </button>
                   </div>
                   <div className="mt-3 flex items-center gap-2">
                     <span className="font-mono font-bold text-lg text-emerald-400 tracking-wider">

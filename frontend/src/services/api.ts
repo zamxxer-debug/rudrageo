@@ -81,6 +81,17 @@ export const api = {
     return request('/auth/me');
   },
 
+  getUsers: async () => {
+    return request('/auth/users');
+  },
+
+  createUser: async (data: { email: string; password: string; full_name: string; phone?: string; role: string }) => {
+    return request('/auth/users', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  },
+
   // Digital Identity
   getMyDigitalId: async () => {
     try {
@@ -116,6 +127,13 @@ export const api = {
     }
   },
 
+  createZone: async (zoneData: any) => {
+    return request('/zones', {
+      method: 'POST',
+      body: JSON.stringify(zoneData)
+    });
+  },
+
   getFacilities: async (destinationId?: string) => {
     const query = destinationId ? `?destination_id=${destinationId}` : '';
     return request(`/zones/facilities${query}`);
@@ -127,6 +145,7 @@ export const api = {
       body: JSON.stringify({ lat, lng, destination_id: destinationId })
     });
   },
+
 
   // AI Risk & Weather
   evaluateRisk: async (lat: number, lng: number, destinationId?: string) => {
@@ -156,7 +175,8 @@ export const api = {
   },
 
   // SOS Emergency Operations
-  triggerSOS: async (payload: { lat: number; lng: number; accuracy_meters?: number; battery_level?: number; notes?: string }, isOnline: boolean = true) => {
+  triggerSOS: async (payload: { lat: number; lng: number; accuracy_meters?: number; battery_level?: number; notes?: string; image_data?: string }, isOnline: boolean = true) => {
+
     if (!isOnline) {
       // Offline mode: Enqueue to encrypted local IndexedDB
       const localId = await enqueueOfflineEvent('SOS_TRIGGER', payload);
@@ -346,5 +366,19 @@ export const api = {
   // Security Audit Logs
   getAuditLogs: async () => {
     return request('/audit/logs');
+  },
+
+  // Observability & Cloud Readiness Checks
+  getHealth: async () => {
+    return request('/health');
+  },
+
+  getDatabaseHealth: async () => {
+    return request('/health/database');
+  },
+
+  getSupabaseHealth: async () => {
+    return request('/health/supabase');
   }
 };
+

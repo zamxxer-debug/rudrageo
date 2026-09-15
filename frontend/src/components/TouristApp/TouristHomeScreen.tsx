@@ -31,6 +31,7 @@ interface TouristHomeScreenProps {
   isSOSOpen: boolean;
   onCloseSOSModal: () => void;
   isDigitalIdOpen: boolean;
+  onOpenDigitalIdModal?: () => void;
   onCloseDigitalIdModal: () => void;
   onLocationSelect: (lat: number, lng: number) => void;
 }
@@ -42,6 +43,7 @@ export const TouristHomeScreen: React.FC<TouristHomeScreenProps> = ({
   isSOSOpen,
   onCloseSOSModal,
   isDigitalIdOpen,
+  onOpenDigitalIdModal,
   onCloseDigitalIdModal,
   onLocationSelect
 }) => {
@@ -279,7 +281,7 @@ export const TouristHomeScreen: React.FC<TouristHomeScreenProps> = ({
 
             {/* My Digital ID */}
             <button
-              onClick={() => onCloseDigitalIdModal ? onCloseDigitalIdModal() : null}
+              onClick={() => onOpenDigitalIdModal ? onOpenDigitalIdModal() : null}
               className="p-4 rounded-2xl bg-slate-900 hover:bg-slate-850 border border-slate-800 hover:border-slate-700 text-left transition-all group cursor-pointer"
             >
               <div className="w-9 h-9 rounded-xl bg-blue-500/20 text-blue-400 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">

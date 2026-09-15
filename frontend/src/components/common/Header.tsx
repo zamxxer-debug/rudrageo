@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
-import { UserRole, ConnectivityStatus } from '../../types';
-import { Shield, Wifi, WifiOff, RefreshCw, UserCheck, AlertTriangle, Radio, LogOut } from 'lucide-react';
+import { useLanguage, Language } from '../../context/LanguageContext';
+import { ConnectivityStatus } from '../../types';
+import { Shield, Wifi, WifiOff, RefreshCw, UserCheck, AlertTriangle, Radio, LogOut, Globe } from 'lucide-react';
 
 interface HeaderProps {
   onOpenDigitalId?: () => void;
@@ -9,7 +10,8 @@ interface HeaderProps {
 }
 
 export const Header: React.FC<HeaderProps> = ({ onOpenDigitalId, onOpenSOS }) => {
-  const { user, role, switchRoleDemo, connectivity, toggleOfflineMode, triggerSync, recentAlerts, logout } = useAuth();
+  const { user, role, connectivity, toggleOfflineMode, triggerSync, logout } = useAuth();
+  const { language, setLanguage, t } = useLanguage();
   const [syncing, setSyncing] = useState(false);
 
   const handleSync = async () => {
@@ -29,7 +31,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDigitalId, onOpenSOS }) =>
           >
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <Wifi className="w-3.5 h-3.5" />
-            <span>ONLINE</span>
+            <span>{t('online')}</span>
           </button>
         );
       case 'LIMITED':
@@ -40,7 +42,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDigitalId, onOpenSOS }) =>
           >
             <span className="w-2 h-2 rounded-full bg-amber-400" />
             <Radio className="w-3.5 h-3.5" />
-            <span>LIMITED</span>
+            <span>{t('limited')}</span>
           </button>
         );
       case 'OFFLINE':
@@ -52,7 +54,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDigitalId, onOpenSOS }) =>
           >
             <span className="w-2 h-2 rounded-full bg-red-500" />
             <WifiOff className="w-3.5 h-3.5" />
-            <span>OFFLINE</span>
+            <span>{t('offline')}</span>
           </button>
         );
     }
@@ -68,54 +70,55 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDigitalId, onOpenSOS }) =>
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <span className="font-heading font-bold text-lg text-white tracking-wide">RUDRA</span>
+              <span className="font-heading font-bold text-lg text-white tracking-wide">{t('brand_name')}</span>
               <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30 uppercase">
-                DRISHTI ID
+                {t('digital_id')}
               </span>
             </div>
-            <p className="text-xs text-slate-400 hidden sm:block">Smart Tourist Safety & Emergency Response Platform</p>
+            <p className="text-xs text-slate-400 hidden sm:block">{t('brand_subtitle')}</p>
           </div>
         </div>
 
-        {/* Connectivity & Sync Engine */}
-        <div className="flex items-center gap-2">
+        {/* Connectivity, Language, & Actions */}
+        <div className="flex items-center gap-2 flex-wrap">
+          {/* Multilingual Selector */}
+          <div className="flex items-center bg-slate-800/90 border border-slate-700/80 rounded-xl p-0.5 text-xs">
+            <button
+              onClick={() => setLanguage('en')}
+              className={`px-2 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
+                language === 'en' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              EN
+            </button>
+            <button
+              onClick={() => setLanguage('hi')}
+              className={`px-2 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
+                language === 'hi' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              हिन्दी
+            </button>
+            <button
+              onClick={() => setLanguage('ta')}
+              className={`px-2 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
+                language === 'ta' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              தமிழ்
+            </button>
+          </div>
+
           {getConnectivityBadge(connectivity)}
 
           <button
             onClick={handleSync}
             disabled={syncing || connectivity === 'OFFLINE'}
-            title="Force Sync Offline Queue"
+            title={t('sync_queue')}
             className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 disabled:opacity-40 transition-colors"
           >
             <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin text-emerald-400' : ''}`} />
           </button>
-
-          {/* Role Navigation Pills */}
-          <div className="flex items-center bg-slate-800/90 rounded-lg p-1 border border-slate-700/60">
-            {(['tourist', 'police', 'guardian', 'tourism_officer', 'admin'] as UserRole[]).map((r) => {
-              const labelMap: Record<UserRole, string> = {
-                tourist: 'Tourist',
-                police: 'Police HQ',
-                guardian: 'Guardian',
-                tourism_officer: 'Tourism',
-                admin: 'Admin'
-              };
-              const active = role === r;
-              return (
-                <button
-                  key={r}
-                  onClick={() => switchRoleDemo(r)}
-                  className={`text-xs px-2.5 py-1 rounded-md font-medium transition-all ${
-                    active
-                      ? 'bg-gradient-to-r from-red-600 to-amber-600 text-white shadow-sm font-semibold'
-                      : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/50'
-                  }`}
-                >
-                  {labelMap[r]}
-                </button>
-              );
-            })}
-          </div>
 
           {/* Digital ID trigger if tourist */}
           {role === 'tourist' && user?.drishti_id && onOpenDigitalId && (
@@ -135,7 +138,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDigitalId, onOpenSOS }) =>
               className="px-3 py-1 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg shadow-md shadow-red-900/50 flex items-center gap-1.5 animate-pulse cursor-pointer"
             >
               <AlertTriangle className="w-3.5 h-3.5" />
-              <span>SOS</span>
+              <span>{t('sos')}</span>
             </button>
           )}
 
@@ -157,7 +160,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDigitalId, onOpenSOS }) =>
                 className="p-1.5 rounded-xl bg-slate-800/90 border border-slate-700/80 text-slate-400 hover:text-red-400 hover:bg-slate-750 transition-colors flex items-center gap-1 text-xs cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
-                <span className="hidden lg:inline text-[11px] font-medium">Log Out</span>
+                <span className="hidden lg:inline text-[11px] font-medium">{t('logout')}</span>
               </button>
             </div>
           ) : null}

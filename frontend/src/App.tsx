@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useAuth } from './context/AuthContext';
+import { LoginPage } from './components/Auth/LoginPage';
 import { Header } from './components/common/Header';
 import { TouristHomeScreen } from './components/TouristApp/TouristHomeScreen';
 import { CommandCenterDashboard } from './components/CommandCenter/CommandCenterDashboard';
@@ -9,7 +10,11 @@ import { AdminDashboard } from './components/AdminPortal/AdminDashboard';
 import { DemoControlPanel } from './components/Demo/DemoControlPanel';
 
 export const App: React.FC = () => {
-  const { role } = useAuth();
+  const { role, isAuthenticated } = useAuth();
+
+  if (!isAuthenticated) {
+    return <LoginPage />;
+  }
 
   // Simulated GPS position (Ooty / Nilgiris)
   const [touristLat, setTouristLat] = useState(11.4180);
@@ -37,6 +42,7 @@ export const App: React.FC = () => {
             isSOSOpen={isSOSOpen}
             onCloseSOSModal={() => setIsSOSOpen(false)}
             isDigitalIdOpen={isDigitalIdOpen}
+            onOpenDigitalIdModal={() => setIsDigitalIdOpen(true)}
             onCloseDigitalIdModal={() => setIsDigitalIdOpen(false)}
             onLocationSelect={(lat, lng) => {
               setTouristLat(lat);

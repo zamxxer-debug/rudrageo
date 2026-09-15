@@ -1,6 +1,20 @@
 from typing import Optional, List, Dict, Any
 from pydantic import BaseModel
 
+class RiskZoneCreate(BaseModel):
+    destination_id: Optional[str] = None
+    zone_code: str
+    name: str
+    description: Optional[str] = None
+    zone_type: str = "landslide"
+    risk_level: str = "high"
+    geometry_type: str = "circle"
+    coordinates_json: str
+    radius_meters: Optional[float] = 250.0
+    warning_distance_meters: Optional[float] = 100.0
+    is_restricted: Optional[bool] = False
+    safety_instructions: Optional[str] = None
+
 class RiskZoneResponse(BaseModel):
     id: str
     destination_id: str
@@ -18,6 +32,7 @@ class RiskZoneResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
 
 class DestinationResponse(BaseModel):
     id: str

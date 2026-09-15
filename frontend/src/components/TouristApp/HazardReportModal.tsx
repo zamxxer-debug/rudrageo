@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../services/api';
-import { AlertTriangle, Camera, MapPin, CheckCircle2, Sparkles, X, Upload } from 'lucide-react';
+import { AlertTriangle, Camera, MapPin, CheckCircle2, Sparkles, X, Upload, Image, Trash2 } from 'lucide-react';
 
 interface HazardReportModalProps {
   isOpen: boolean;
@@ -21,8 +21,19 @@ export const HazardReportModal: React.FC<HazardReportModalProps> = ({
   const [description, setDescription] = useState('Rockfall across northbound lane before Kalhatty hairpin 20.');
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState<any>(null);
+  const [photoData, setPhotoData] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!isOpen) return null;
+
+  const handlePhotoCapture = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => setPhotoData(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -34,12 +45,13 @@ export const HazardReportModal: React.FC<HazardReportModalProps> = ({
         description,
         lat: currentLat,
         lng: currentLng,
-        image_url: 'https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&q=80&w=600'
+        image_url: photoData || undefined
       }, connectivity === 'ONLINE');
 
       setSubmitted(res);
       setTimeout(() => {
         setSubmitted(null);
+        setPhotoData(null);
         onClose();
       }, 2500);
     } catch (err) {
@@ -77,7 +89,7 @@ export const HazardReportModal: React.FC<HazardReportModalProps> = ({
               </p>
               {submitted.ai_classification && (
                 <div className="p-2 bg-slate-800 rounded-lg text-xs text-amber-300 border border-slate-700 inline-block">
-                  🤖 AI Classification: <strong>{submitted.ai_classification}</strong> ({Math.round(submitted.ai_confidence * 100)}% confidence)
+                  🤖 AI: <strong>{submitted.ai_classification}</strong> ({Math.round(submitted.ai_confidence * 100)}% confidence)
                 </div>
               )}
             </div>
@@ -112,21 +124,56 @@ export const HazardReportModal: React.FC<HazardReportModalProps> = ({
                 />
               </div>
 
-              {/* Photo Simulation */}
-              <div className="p-3 bg-slate-800/60 rounded-xl border border-dashed border-slate-700 flex items-center justify-between text-xs text-slate-400">
-                <div className="flex items-center gap-2">
-                  <Camera className="w-4 h-4 text-slate-300" />
-                  <span>Photo Attachment</span>
-                </div>
-                <span className="text-[10px] bg-slate-700 px-2 py-0.5 rounded text-slate-300">
-                  hairpin_rockfall.jpg (Simulated)
-                </span>
+              {/* Camera / Photo Attachment */}
+              <div>
+                <label className="text-xs font-semibold text-slate-300 block mb-1.5">
+                  <Camera className="w-3.5 h-3.5 inline-block mr-1" /> Photo Evidence (Optional):
+                </label>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  className="hidden"
+                  onChange={handlePhotoCapture}
+                />
+                {photoData ? (
+                  <div className="flex items-center gap-3 bg-slate-800/80 border border-emerald-500/40 rounded-xl p-2.5">
+                    <img
+                      src={photoData}
+                      alt="Hazard photo"
+                      className="w-12 h-12 object-cover rounded-lg border border-slate-600 shrink-0"
+                    />
+                    <div className="flex-1">
+                      <p className="text-xs font-semibold text-emerald-400 flex items-center gap-1">
+                        <Image className="w-3 h-3" /> Photo ready
+                      </p>
+                      <p className="text-[10px] text-slate-400">Will accompany hazard report</p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPhotoData(null)}
+                      className="p-1.5 rounded-lg bg-slate-700 hover:bg-red-900/60 text-slate-400 hover:text-red-300 transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    className="w-full flex items-center justify-center gap-2 py-2.5 rounded-xl border border-dashed border-slate-600 hover:border-amber-500/50 bg-slate-800/40 hover:bg-amber-950/20 text-slate-400 hover:text-amber-300 text-xs font-semibold transition-all cursor-pointer"
+                  >
+                    <Camera className="w-4 h-4" />
+                    <span>Open Camera / Pick from Gallery</span>
+                  </button>
+                )}
               </div>
 
               {/* Location Stamp */}
               <div className="flex items-center gap-2 text-[11px] text-slate-400 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
                 <MapPin className="w-3.5 h-3.5 text-red-400 shrink-0" />
-                <span>Tagged GPS: {currentLat.toFixed(5)}, {currentLng.toFixed(5)} (Nilgiris Sector)</span>
+                <span>GPS: {currentLat.toFixed(5)}, {currentLng.toFixed(5)} (Nilgiris)</span>
               </div>
 
               <button

@@ -8,7 +8,7 @@ from models.user import User
 from models.tourist import TouristProfile, DigitalIdentity, EmergencyContact
 from models.zone import Destination
 from models.blockchain import AuditLog
-from schemas.auth import UserRegister, UserLogin, Token, UserResponse
+from schemas.auth import UserRegister, UserLogin, Token, UserResponse, AdminUserCreate
 from services.auth_service import (
     get_password_hash,
     verify_password,
@@ -16,6 +16,7 @@ from services.auth_service import (
     get_current_user,
     hash_passport
 )
+from services.auth_service import require_roles
 from services.digital_id_service import digital_id_service
 from services.blockchain_service import blockchain_service
 
@@ -23,6 +24,11 @@ router = APIRouter(prefix="/api/auth", tags=["Authentication"])
 
 @router.post("/register", response_model=Token)
 def register(data: UserRegister, db: Session = Depends(get_db)):
+    if data.role != "tourist":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Public registration is limited to tourist accounts. An administrator must create staff accounts."
+        )
     # Check if email already registered
     existing = db.query(User).filter(User.email == data.email).first()
     if existing:
@@ -154,6 +160,78 @@ def register(data: UserRegister, db: Session = Depends(get_db)):
         full_name=new_user.full_name,
         email=new_user.email,
         drishti_id=drishti_id
+    )
+
+@router.get("/users", response_model=list[UserResponse])
+def list_users(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["admin"]))
+):
+    users = db.query(User).order_by(User.created_at.desc()).all()
+    responses = []
+    for user in users:
+        drishti_id = None
+        nationality = "Indian"
+        is_foreign = False
+        if user.tourist_profile:
+            nationality = user.tourist_profile.nationality
+            is_foreign = user.tourist_profile.is_foreign_tourist
+            if user.tourist_profile.digital_identity:
+                drishti_id = user.tourist_profile.digital_identity.drishti_id
+        responses.append(UserResponse(
+            id=user.id,
+            email=user.email,
+            full_name=user.full_name,
+            phone=user.phone,
+            role=user.role,
+            is_active=user.is_active,
+            drishti_id=drishti_id,
+            nationality=nationality,
+            is_foreign_tourist=is_foreign
+        ))
+    return responses
+
+@router.post("/users", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
+def create_user(
+    data: AdminUserCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_roles(["admin"]))
+):
+    allowed_roles = {"tourist", "police", "guardian", "tourism_officer", "admin"}
+    if data.role not in allowed_roles:
+        raise HTTPException(status_code=400, detail="Unsupported user role")
+    if db.query(User).filter(User.email == data.email).first():
+        raise HTTPException(status_code=400, detail="Email is already registered")
+    if data.phone and db.query(User).filter(User.phone == data.phone).first():
+        raise HTTPException(status_code=400, detail="Phone number is already registered")
+
+    new_user = User(
+        email=data.email,
+        phone=data.phone,
+        hashed_password=get_password_hash(data.password),
+        full_name=data.full_name,
+        role=data.role
+    )
+    db.add(new_user)
+    db.flush()
+    db.add(AuditLog(
+        user_id=current_user.id,
+        action="ADMIN_USER_CREATED",
+        resource_type="user",
+        resource_id=new_user.id,
+        details_json=f'{{"email": "{data.email}", "role": "{data.role}"}}'
+    ))
+    db.commit()
+    db.refresh(new_user)
+    return UserResponse(
+        id=new_user.id,
+        email=new_user.email,
+        full_name=new_user.full_name,
+        phone=new_user.phone,
+        role=new_user.role,
+        is_active=new_user.is_active,
+        nationality="Indian",
+        is_foreign_tourist=False
     )
 
 @router.post("/login", response_model=Token)

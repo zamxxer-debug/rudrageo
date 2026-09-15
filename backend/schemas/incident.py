@@ -9,7 +9,9 @@ class SOSTriggerRequest(BaseModel):
     battery_level: Optional[int] = 80
     offline_event_id: Optional[str] = None
     notes: Optional[str] = None
+    image_data: Optional[str] = None
     connectivity_mode: Optional[str] = "online"  # online, synced_from_offline, sms_fallback
+
 
 class TimelineEventResponse(BaseModel):
     id: str

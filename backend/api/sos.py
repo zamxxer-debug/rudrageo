@@ -141,10 +141,23 @@ async def trigger_sos(
         event_type="sos_triggered",
         actor_id=current_user.id,
         actor_name=current_user.full_name,
-        description=f"SOS triggered by {current_user.full_name} at coordinates ({data.lat:.5f}, {data.lng:.5f}) via {data.connectivity_mode} channel.",
-        payload_json=json.dumps({"battery": data.battery_level, "notes": sos_notes})
+        description=f"SOS triggered by {current_user.full_name} at coordinates ({data.lat:.5f}, {data.lng:.5f}) via {data.connectivity_mode} channel. Notes: {sos_notes}",
+        payload_json=json.dumps({"battery": data.battery_level, "notes": sos_notes, "has_photo": bool(data.image_data)})
     )
     db.add(evt)
+
+    if data.image_data:
+        evt_photo = IncidentEvent(
+            incident_id=incident.id,
+            timestamp=datetime.utcnow(),
+            event_type="emergency_photo_attached",
+            actor_id=current_user.id,
+            actor_name=current_user.full_name,
+            description="Incident scene photo attached by tourist via live camera / upload.",
+            payload_json=json.dumps({"image_data": data.image_data})
+        )
+        db.add(evt_photo)
+
 
     # Blockchain anchoring
     drishti_id = profile.digital_identity.drishti_id if profile.digital_identity else "UNVERIFIED"

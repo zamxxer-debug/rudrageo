@@ -20,6 +20,13 @@ class UserRegister(BaseModel):
     privacy_consent: bool = True
     location_sharing_consent: str = "emergency_only"  # never, during_trip, emergency_only
 
+class AdminUserCreate(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=6)
+    full_name: str = Field(min_length=2)
+    phone: Optional[str] = None
+    role: str = "tourist"
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
@@ -46,3 +53,10 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+class AdminUserCreate(BaseModel):
+    email: EmailStr
+    password: str = Field(min_length=6)
+    full_name: str = Field(min_length=2)
+    phone: Optional[str] = None
+    role: str = "tourist"

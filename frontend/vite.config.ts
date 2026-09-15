@@ -17,5 +17,21 @@ export default defineConfig({
         ws: true
       }
     }
+  },
+  build: {
+    outDir: 'dist',
+    sourcemap: false,
+    chunkSizeWarningLimit: 1200,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          maps: ['leaflet'],
+          charts: ['recharts'],
+          icons: ['lucide-react']
+        }
+      }
+    }
   }
 });
+
