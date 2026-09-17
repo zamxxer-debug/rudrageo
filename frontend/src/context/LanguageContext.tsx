@@ -1,4 +1,4 @@
-﻿import React, { createContext, useContext, useState, ReactNode } from 'react';
+import React, { createContext, useContext, useState, ReactNode } from 'react';
 
 export type Language = 'en' | 'hi' | 'ta';
 
@@ -72,6 +72,8 @@ const translations: Record<Language, Record<string, string>> = {
     'supabase_status': 'Supabase PostgreSQL Cloud',
     'demo_hud': 'Demo Controls',
     'demo_hud_full': 'Interactive Demonstration HUD',
+    'atithi_devo_bhava': 'Atithi Devo Bhava (The Guest is Truly Divine)',
+    'rescue_chronicles': 'Care & Heritage Chronicles',
     'close': 'Close'
   },
   hi: {
@@ -137,6 +139,8 @@ const translations: Record<Language, Record<string, string>> = {
     'supabase_status': 'सुपाबेस पोस्टग्रेस क्लाउड',
     'demo_hud': 'डेमो कंट्रोल्स',
     'demo_hud_full': 'इंटरैक्टिव डेमो सिम्युलेटर',
+    'atithi_devo_bhava': 'अतिथि देवो भव (अतिथि भगवान स्वरूप हैं)',
+    'rescue_chronicles': 'सुरक्षा एवं धरोहर गाथा',
     'close': 'बंद करें'
   },
   ta: {
@@ -202,6 +206,8 @@ const translations: Record<Language, Record<string, string>> = {
     'supabase_status': 'சுபாபேஸ் போஸ்ட்கிரெஸ் கிளவுட்',
     'demo_hud': 'டெமோ கட்டுப்பாடுகள்',
     'demo_hud_full': 'டெமோ சிமுலேட்டர்',
+    'atithi_devo_bhava': 'விருந்தோம்பல் (அதிதி தேவோ பவ)',
+    'rescue_chronicles': 'பாதுகாப்பு & பாரம்பரிய வரலாறு',
     'close': 'மூடு'
   }
 };

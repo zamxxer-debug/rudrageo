@@ -80,12 +80,12 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDigitalId, onOpenSOS }) =>
         </div>
 
         {/* Connectivity, Language, & Actions */}
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
           {/* Multilingual Selector */}
-          <div className="flex items-center bg-slate-800/90 border border-slate-700/80 rounded-xl p-0.5 text-xs">
+          <div className="flex items-center bg-[#070B14] border border-slate-700/80 rounded-xl p-0.5 h-8">
             <button
               onClick={() => setLanguage('en')}
-              className={`px-2 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
+              className={`h-7 px-2.5 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
                 language === 'en' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -93,7 +93,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDigitalId, onOpenSOS }) =>
             </button>
             <button
               onClick={() => setLanguage('hi')}
-              className={`px-2 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
+              className={`h-7 px-2.5 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
                 language === 'hi' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -101,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDigitalId, onOpenSOS }) =>
             </button>
             <button
               onClick={() => setLanguage('ta')}
-              className={`px-2 py-1 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
+              className={`h-7 px-2.5 rounded-lg font-bold text-[11px] transition-all cursor-pointer ${
                 language === 'ta' ? 'bg-amber-500 text-slate-950 shadow-sm' : 'text-slate-400 hover:text-white'
               }`}
             >
@@ -115,19 +115,19 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDigitalId, onOpenSOS }) =>
             onClick={handleSync}
             disabled={syncing || connectivity === 'OFFLINE'}
             title={t('sync_queue')}
-            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 disabled:opacity-40 transition-colors"
+            className="h-8 w-8 text-slate-400 hover:text-white rounded-lg bg-slate-850 hover:bg-slate-800 border border-slate-700/70 flex items-center justify-center disabled:opacity-40 transition-colors cursor-pointer"
           >
-            <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin text-emerald-400' : ''}`} />
+            <RefreshCw className={`w-3.5 h-3.5 ${syncing ? 'animate-spin text-emerald-400' : ''}`} />
           </button>
 
           {/* Digital ID trigger if tourist */}
           {role === 'tourist' && user?.drishti_id && onOpenDigitalId && (
             <button
               onClick={onOpenDigitalId}
-              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-800 border border-slate-700 text-slate-200 hover:bg-slate-700 transition-colors cursor-pointer"
+              className="h-8 flex items-center gap-1.5 px-3 rounded-lg text-xs font-semibold bg-slate-850 border border-slate-700 text-slate-200 hover:bg-slate-800 hover:border-slate-600 transition-colors cursor-pointer"
             >
               <UserCheck className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="font-mono text-emerald-300 font-bold">{user.drishti_id}</span>
+              <span className="font-mono text-emerald-300 font-bold text-[11px]">{user.drishti_id}</span>
             </button>
           )}
 
@@ -135,29 +135,28 @@ export const Header: React.FC<HeaderProps> = ({ onOpenDigitalId, onOpenSOS }) =>
           {role === 'tourist' && onOpenSOS && (
             <button
               onClick={onOpenSOS}
-              className="px-3 py-1 bg-red-600 hover:bg-red-500 text-white text-xs font-bold rounded-lg shadow-md shadow-red-900/50 flex items-center gap-1.5 animate-pulse cursor-pointer"
+              className="h-8 px-3.5 bg-red-600 hover:bg-red-700 text-white text-xs font-black rounded-lg shadow-sm border border-red-500/30 flex items-center gap-1.5 transition-all active:translate-y-0.5 cursor-pointer"
             >
               <AlertTriangle className="w-3.5 h-3.5" />
-              <span>{t('sos')}</span>
+              <span className="tracking-wide">{t('sos')}</span>
             </button>
           )}
 
           {/* User Account & Logout */}
           {user ? (
-            <div className="flex items-center gap-1.5 pl-2 border-l border-slate-700/80">
-              <div className="flex items-center gap-2 bg-slate-800/90 border border-slate-700/70 px-2 py-1 rounded-xl">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-red-500 to-amber-500 flex items-center justify-center text-[10px] font-bold text-white uppercase shadow-sm">
+            <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
+              <div className="flex items-center gap-2 bg-slate-850 border border-slate-700/70 h-8 px-2.5 rounded-lg">
+                <div className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-[10px] font-black text-slate-950 uppercase shadow-sm">
                   {user.full_name ? user.full_name.charAt(0) : 'U'}
                 </div>
                 <div className="hidden md:block text-left">
-                  <div className="text-xs font-bold text-white truncate max-w-[110px] leading-tight">{user.full_name}</div>
-                  <div className="text-[10px] text-slate-400 capitalize">{role.replace('_', ' ')}</div>
+                  <div className="text-[11px] font-bold text-white truncate max-w-[100px] leading-none">{user.full_name}</div>
                 </div>
               </div>
               <button
                 onClick={logout}
                 title="Log out and return to Login screen"
-                className="p-1.5 rounded-xl bg-slate-800/90 border border-slate-700/80 text-slate-400 hover:text-red-400 hover:bg-slate-750 transition-colors flex items-center gap-1 text-xs cursor-pointer"
+                className="h-8 px-2.5 rounded-lg bg-slate-850 border border-slate-700/70 text-slate-400 hover:text-red-400 hover:bg-slate-800 transition-colors flex items-center gap-1.5 text-xs cursor-pointer"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 <span className="hidden lg:inline text-[11px] font-medium">{t('logout')}</span>

@@ -47,26 +47,105 @@
   animation: ping-slow 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;
 }
 
-/* High contrast glass elements */
+/* High contrast glass and card elements */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.85);
+  background: rgba(15, 23, 42, 0.92);
   backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.card-elevated {
+  background: #0F172A;
+  border: 1px solid #1E293B;
+  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.5);
 }
 
 .input-field {
   width: 100%;
   border-radius: 0.75rem;
-  border: 1px solid rgb(30 41 59);
-  background: rgb(2 6 23 / 0.8);
-  color: white;
+  border: 1px solid #334155;
+  background: #0B1220;
+  color: #F8FAFC;
   padding: 0.625rem 0.875rem;
-  font-size: 0.75rem;
+  font-size: 0.8125rem;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .input-field:focus {
   outline: none;
-  border-color: rgb(59 130 246);
+  border-color: #38BDF8;
+  box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
+}
+
+/* Standardized Professional Emergency & Tourism Action Buttons */
+.btn-action-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem; /* 44px standard touch target */
+  padding: 0 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: #DC2626;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.btn-action-primary:hover {
+  background: #B91C1C;
+  box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+}
+
+.btn-action-primary:active {
+  transform: translateY(1px);
+}
+
+.btn-tourism-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: #FFFFFF;
+  background: #EA580C; /* Warm Indian saffron / terracotta */
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.btn-tourism-primary:hover {
+  background: #C2410C;
+  box-shadow: 0 4px 12px rgba(234, 88, 12, 0.35);
+}
+
+.btn-action-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 2.75rem;
+  padding: 0 1.25rem;
+  border-radius: 0.75rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #E2E8F0;
+  background: #1E293B;
+  border: 1px solid #334155;
+  transition: all 0.15s ease-in-out;
+  cursor: pointer;
+}
+
+.btn-action-secondary:hover {
+  background: #334155;
+  border-color: #475569;
+  color: #FFFFFF;
 }
 
 /* Custom Scrollbars */
