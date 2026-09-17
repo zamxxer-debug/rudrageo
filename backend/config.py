@@ -1,6 +1,6 @@
 import os
 from typing import List
-from pydantic_settings import BaseSettings
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     APP_NAME: str = "Rudra"
@@ -51,8 +51,13 @@ class Settings(BaseSettings):
     def cors_origins_list(self) -> List[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",") if origin.strip()]
 
-    class Config:
-        env_file = ".env"
-        extra = "allow"
+    model_config = SettingsConfigDict(
+        env_file=[
+            ".env",
+            os.path.join(os.path.dirname(__file__), ".env"),
+            os.path.join(os.path.dirname(__file__), "..", ".env"),
+        ],
+        extra="allow",
+    )
 
 settings = Settings()

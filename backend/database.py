@@ -1,9 +1,37 @@
 import os
+import shutil
+from pathlib import Path
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import declarative_base, sessionmaker
 from config import settings
 
+
+def _prepare_sqlite_database_path(db_url: str) -> str:
+    if not db_url.startswith("sqlite"):
+        return db_url
+
+    if "///" not in db_url:
+        return db_url
+
+    db_path = db_url.replace("sqlite:///", "", 1)
+    if db_path.startswith("/"):
+        resolved = Path(db_path)
+    else:
+        resolved = Path.cwd() / db_path
+
+    if resolved.exists() and resolved.is_dir():
+        shutil.rmtree(resolved)
+        resolved.touch()
+    elif not resolved.exists():
+        resolved.parent.mkdir(parents=True, exist_ok=True)
+        resolved.touch()
+
+    return db_url
+
+
 database_url = settings.DATABASE_URL or "sqlite:///./rudra.db"
+database_url = _prepare_sqlite_database_path(database_url)
 
 # Supabase / Render URL normalization
 if database_url.startswith("postgres://"):
