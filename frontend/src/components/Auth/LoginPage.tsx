@@ -114,6 +114,17 @@ const PERSONAS: PersonaInfo[] = [
   }
 ];
 
+const HERO_IMAGES = [
+  '/images/istockphoto-1134241228-1024x1024.jpg',
+  '/images/istockphoto-1164329797-1024x1024.jpg',
+  '/images/istockphoto-1215082607-1024x1024.jpg',
+  '/images/istockphoto-1266651692-1024x1024.jpg',
+  '/images/istockphoto-2161498980-1024x1024.jpg',
+  '/images/istockphoto-510795912-1024x1024.jpg',
+  '/images/istockphoto-857389362-1024x1024.jpg',
+  '/images/istockphoto-980935038-1024x1024.jpg'
+];
+
 export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const { login, switchRoleDemo } = useAuth();
   const { language, setLanguage, t } = useLanguage();
@@ -127,9 +138,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [activeHeroImage, setActiveHeroImage] = useState(0);
   
   // Cloud & Supabase Status
   const [dbStatus, setDbStatus] = useState<{ connected: boolean; provider: string; latency?: number } | null>(null);
+
+  useEffect(() => {
+    const intervalId = window.setInterval(() => {
+      setActiveHeroImage((current) => (current + 1) % HERO_IMAGES.length);
+    }, 5200);
+
+    return () => window.clearInterval(intervalId);
+  }, []);
 
   // Registration Form State
   const [regFullName, setRegFullName] = useState('');
@@ -273,9 +293,8 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             </div>
           </div>
 
-          {/* Multilingual Selector & Deployment Status */}
+          {/* Multilingual Selector */}
           <div className="flex items-center gap-3 text-xs">
-            {/* Language Switcher */}
             <div className="flex items-center bg-slate-900 border border-slate-700/80 rounded-xl p-0.5">
               <button
                 onClick={() => setLanguage('en')}
@@ -302,21 +321,6 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
                 தமிழ்
               </button>
             </div>
-
-            {/* Database Telemetry Pill */}
-            <div className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-700/80 text-xs">
-              <Database className="w-3.5 h-3.5 text-emerald-400" />
-              <span className="text-slate-300 font-medium">DB:</span>
-              <span className="text-emerald-400 font-bold">{dbStatus?.provider?.includes('Supabase') ? 'Supabase Ready' : 'PostgreSQL Active'}</span>
-              {dbStatus?.latency !== undefined && (
-                <span className="text-[10px] font-mono text-slate-400">({dbStatus.latency}ms)</span>
-              )}
-            </div>
-
-            <div className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900 border border-slate-700/80 text-xs">
-              <Cloud className="w-3.5 h-3.5 text-cyan-400" />
-              <span className="text-cyan-300 font-medium">Vercel Deployable</span>
-            </div>
           </div>
         </div>
       </header>
@@ -325,56 +329,93 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
       <main className="flex-1 max-w-7xl mx-auto w-full px-4 sm:px-6 lg:px-8 py-6 z-10">
         
         {/* HERO BANNER: INCREDIBLE INDIA & NILGIRIS SAFETY GRID (Inspired by Reference Images) */}
-        <div className="relative rounded-3xl overflow-hidden border border-slate-800 bg-[#0C1425] shadow-2xl mb-8 group">
-          {/* High-resolution landscape backdrop with mist framing */}
-          <div 
-            className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-luminosity transform scale-105 transition-transform duration-1000 group-hover:scale-100"
-            style={{
-              backgroundImage: `url('https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=1920&q=80')`
-            }}
-          />
-          {/* Subtle dark gradient overlay for crystal clear contrast */}
-          <div className="absolute inset-0 bg-gradient-to-r from-[#070B14] via-[#0B1322]/90 to-[#070B14]/70" />
+        <div className="relative rounded-[32px] overflow-hidden border border-white/10 bg-[#0C1425] shadow-[0_40px_100px_rgba(0,0,0,0.5)] mb-8 group">
+          <div className="absolute inset-0 overflow-hidden">
+            {HERO_IMAGES.map((image, index) => (
+              <img
+                key={image}
+                src={image}
+                alt="India travel and tourism background"
+                className={`absolute inset-0 h-full w-full object-cover transition-all duration-[2000ms] ease-in-out ${
+                  activeHeroImage === index
+                    ? 'opacity-50 scale-105 blur-[1px]'
+                    : 'opacity-0 scale-110 blur-[2.5px]'
+                }`}
+              />
+            ))}
+          </div>
 
-          <div className="relative p-6 sm:p-10 lg:p-12 max-w-4xl space-y-4">
-            {/* Top Pill - Incredible India Tourism & Safety Authority with Atithi Devo Bhava */}
-            <div className="flex flex-wrap items-center gap-2">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-200 text-xs font-bold tracking-wide shadow-sm">
-                <HeartHandshake className="w-3.5 h-3.5 text-amber-400" />
-                <span>अतिथि देवो भव • ATITHI DEVO BHAVA</span>
+          <div className="absolute inset-0 bg-[linear-gradient(90deg,rgba(6,10,17,0.85)_0%,rgba(11,19,34,0.78)_32%,rgba(10,15,24,0.42)_58%,rgba(10,15,24,0.16)_100%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(251,191,36,0.16),transparent_30%),radial-gradient(circle_at_bottom_right,rgba(34,197,94,0.12),transparent_25%)]" />
+          <div className="absolute inset-0 backdrop-blur-[1px]" />
+
+          <div className="relative p-6 sm:p-8 lg:p-10 xl:p-12 grid gap-6 lg:grid-cols-[1.2fr_0.8fr] items-center min-h-[360px] lg:min-h-[420px]">
+            <div className="space-y-4 max-w-3xl relative z-10">
+              <div className="flex flex-wrap items-center gap-2">
+                <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-200 text-xs font-bold tracking-wide shadow-sm backdrop-blur-sm">
+                  <HeartHandshake className="w-3.5 h-3.5 text-amber-400" />
+                  <span>अतिथि देवो भव • ATITHI DEVO BHAVA</span>
+                </div>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/70 border border-slate-700 text-slate-300 text-xs font-medium backdrop-blur-sm">
+                  <Sparkles className="w-3 h-3 text-amber-400" />
+                  <span>Incredible India • National Tourism Safety Network</span>
+                </div>
               </div>
-              <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-900/80 border border-slate-700 text-slate-300 text-xs font-medium">
-                <Sparkles className="w-3 h-3 text-amber-400" />
-                <span>Incredible India • National Tourism Safety Network</span>
+
+              <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-black text-white tracking-tight leading-[1.15] drop-shadow-[0_2px_12px_rgba(0,0,0,0.45)]">
+                Where Sacred Hospitality <br className="hidden sm:inline" />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-300 to-emerald-400">
+                  Meets Unfailing Protection.
+                </span>
+              </h1>
+
+              <p className="text-sm sm:text-base text-slate-100/95 max-w-2xl leading-relaxed drop-shadow-[0_2px_12px_rgba(0,0,0,0.5)]">
+                Rooted in the timeless Indian spirit of <em>Atithi Devo Bhava</em> (The Guest is Truly Divine), RUDRA protects domestic and international explorers across the Nilgiris Ghats with real-time satellite telemetry, offline-first digital DRISHTI passes, and accredited local community guardians.
+              </p>
+
+              <div className="pt-2 flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700/80 text-slate-200 font-semibold shadow-sm backdrop-blur-sm">
+                  <Mountain className="w-3.5 h-3.5 text-amber-400" />
+                  <span>36 Nilgiris Ghat Hairpins Monitored</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700/80 text-slate-200 font-semibold shadow-sm backdrop-blur-sm">
+                  <Radio className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>100% Offline-First Mesh Engine</span>
+                </span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/80 border border-slate-700/80 text-slate-200 font-semibold shadow-sm backdrop-blur-sm">
+                  <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
+                  <span>480+ Travelers Safely Guided & Protected</span>
+                </span>
               </div>
             </div>
 
-            {/* Bold Headline */}
-            <h1 className="text-3xl sm:text-4xl lg:text-5xl font-heading font-black text-white tracking-tight leading-[1.15]">
-              Where Sacred Hospitality <br className="hidden sm:inline" />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-400 via-orange-300 to-emerald-400">
-                Meets Unfailing Protection.
-              </span>
-            </h1>
+            <div className="relative h-full min-h-[260px] rounded-[28px] border border-white/10 bg-slate-900/30 backdrop-blur-sm shadow-2xl overflow-hidden z-10">
+              <div className="relative h-full w-full">
+                {HERO_IMAGES.map((image, index) => (
+                  <img
+                    key={image}
+                    src={image}
+                    alt="Beautiful India travel scene"
+                    className={`absolute inset-0 h-full w-full object-cover transition-all duration-[1800ms] ease-in-out ${
+                      activeHeroImage === index ? 'opacity-100 scale-100' : 'opacity-0 scale-110'
+                    }`}
+                  />
+                ))}
+              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B1220] via-[#0B1220]/20 to-transparent" />
 
-            <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed">
-              Rooted in the timeless Indian spirit of <em>Atithi Devo Bhava</em> (The Guest is Truly Divine), RUDRA protects domestic and international explorers across the Nilgiris Ghats with real-time satellite telemetry, offline-first digital DRISHTI passes, and accredited local community guardians.
-            </p>
-
-            {/* Trust & Operations Metrics Pill Strip (Inspired by +Anton / Reference 1 & 3) */}
-            <div className="pt-2 flex flex-wrap items-center gap-2 sm:gap-3 text-xs">
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-slate-200 font-semibold shadow-sm">
-                <Mountain className="w-3.5 h-3.5 text-amber-400" />
-                <span>36 Nilgiris Ghat Hairpins Monitored</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-slate-200 font-semibold shadow-sm">
-                <Radio className="w-3.5 h-3.5 text-emerald-400" />
-                <span>100% Offline-First Mesh Engine</span>
-              </span>
-              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-slate-200 font-semibold shadow-sm">
-                <ShieldCheck className="w-3.5 h-3.5 text-blue-400" />
-                <span>480+ Travelers Safely Guided & Protected</span>
-              </span>
+              <div className="absolute bottom-0 left-0 right-0 p-4 sm:p-5 z-20">
+                <div className="inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-slate-950/60 px-3 py-1 text-[10px] font-extrabold uppercase tracking-[0.22em] text-amber-200 backdrop-blur-sm">
+                  <HeartHandshake className="w-3.5 h-3.5 text-amber-300" />
+                  Incredible India
+                </div>
+                <p className="mt-3 text-base font-bold text-white leading-snug drop-shadow-[0_2px_10px_rgba(0,0,0,0.7)]">
+                  Beauty, warmth, and love in every journey.
+                </p>
+                <p className="mt-1 text-[11px] text-slate-200/90 drop-shadow-[0_2px_10px_rgba(0,0,0,0.55)]">
+                  From sunrise adventures to heartfelt hospitality, India welcomes every traveler with care.
+                </p>
+              </div>
             </div>
           </div>
         </div>
