@@ -58,13 +58,16 @@ The demo database automatically seeds 5 distinct operational personas. You can l
 ## Supabase Database Integration
 
 1. Create a free project at [supabase.com](https://supabase.com).
-2. Obtain your PostgreSQL Connection URI from **Project Settings > Database > Connection String > URI**.
-3. In `backend/.env` (or cloud environment settings), set:
+2. Copy the PostgreSQL connection string from **Project Settings > Database > Connection String**. Use the Supabase Session Pooler string if the direct database host is not reachable from Render.
+3. In the Render backend service, add these environment variables:
    ```env
-   DATABASE_URL=postgresql+psycopg2://postgres:[YOUR-PASSWORD]@db.[PROJECT-REF].supabase.co:5432/postgres
+   DATABASE_URL=postgresql+psycopg2://postgres.[PROJECT-REF]:[YOUR-PASSWORD]@[SUPABASE-POOLER-HOST]:5432/postgres
+   APP_ENV=production
+   DEMO_MODE=false
    ```
-4. *Optional Manual Schema*: You can execute `backend/supabase_schema.sql` directly inside the **Supabase SQL Editor** to initialize all tables, foreign keys, and indexes.
-5. In the **Admin Portal**, use the **Test Connection** button to verify latency and connected tables.
+   Replace the placeholders with the exact values shown by Supabase. Do not use the Supabase anon key or service-role key as `DATABASE_URL`.
+4. Redeploy the Render service. On first startup, the backend creates its SQLAlchemy tables in the connected database. Use a new/empty Supabase database; the checked-in `backend/supabase_schema.sql` is not currently aligned with all ORM models and should not be run as the initial schema.
+5. Confirm `https://rudrageo.onrender.com/health/database` reports `PostgreSQL (Supabase/Cloud)` and `durable_storage: true`.
 
 ---
 

@@ -31,6 +31,10 @@ def _prepare_sqlite_database_path(db_url: str) -> str:
 
 
 database_url = settings.DATABASE_URL or "sqlite:///./rudra.db"
+if settings.APP_ENV.lower() in {"production", "prod"} and database_url.startswith("sqlite"):
+    raise RuntimeError(
+        "Production requires a PostgreSQL DATABASE_URL. Configure Render to use your Supabase connection string."
+    )
 database_url = _prepare_sqlite_database_path(database_url)
 
 # Supabase / Render URL normalization

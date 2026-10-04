@@ -2,7 +2,7 @@ import time
 from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import text
-from database import get_db
+from database import engine, get_db
 from config import settings
 
 router = APIRouter(tags=["Observability & Health"])
@@ -23,11 +23,12 @@ def health_database(db: Session = Depends(get_db)):
     try:
         db.execute(text("SELECT 1"))
         latency_ms = round((time.perf_counter() - start) * 1000, 2)
-        db_type = "PostgreSQL (Supabase/Cloud)" if "postgres" in settings.DATABASE_URL.lower() else "SQLite (Local Embedded)"
+        is_postgresql = engine.dialect.name == "postgresql"
         return {
             "status": "healthy",
             "database": "connected",
-            "type": db_type,
+            "type": "PostgreSQL (Supabase/Cloud)" if is_postgresql else "SQLite (Local Embedded)",
+            "durable_storage": is_postgresql,
             "latency_ms": latency_ms
         }
     except Exception as e:
@@ -40,14 +41,15 @@ def health_supabase(db: Session = Depends(get_db)):
         # Check basic count across users table
         result = db.execute(text("SELECT count(*) FROM users")).scalar()
         latency_ms = round((time.perf_counter() - start) * 1000, 2)
-        is_supabase = "supabase" in settings.DATABASE_URL.lower() or "postgres" in settings.DATABASE_URL.lower()
+        is_supabase = engine.dialect.name == "postgresql"
         return {
             "status": "healthy",
             "connected": True,
             "provider": "Supabase PostgreSQL" if is_supabase else "Local SQLite (Ready for Supabase URI)",
             "users_count": result,
             "latency_ms": latency_ms,
-            "connection_string_configured": bool(settings.DATABASE_URL)
+            "connection_string_configured": bool(settings.DATABASE_URL),
+            "durable_storage": is_supabase
         }
     except Exception as e:
         return {

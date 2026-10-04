@@ -14,8 +14,12 @@ from models.blockchain import BlockchainRecord, AuditLog
 from services.auth_service import get_password_hash
 from services.digital_id_service import digital_id_service
 from services.blockchain_service import blockchain_service
+from config import settings
 
 def seed_demo_data(db: Session):
+    if not settings.DEMO_MODE:
+        return
+
     # Check if already seeded
     if db.query(User).filter(User.email == "admin@rudra.gov.in").first():
         return
