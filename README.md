@@ -69,6 +69,8 @@ The demo database automatically seeds 5 distinct operational personas. You can l
 4. Redeploy the Render service. On first startup, the backend creates its SQLAlchemy tables in the connected database. Use a new/empty Supabase database; the checked-in `backend/supabase_schema.sql` is not currently aligned with all ORM models and should not be run as the initial schema.
 5. Confirm `https://rudrageo.onrender.com/health/database` reports `PostgreSQL (Supabase/Cloud)` and `durable_storage: true`.
 
+If the existing Supabase database was initialized from the older SQL schema, run `backend/migrations/20261004_auth_schema_compat.sql` in the Supabase SQL Editor before testing authentication. This migration preserves existing rows while adding the auth columns expected by the current backend.
+
 ---
 
 ## Vercel Frontend Deployment

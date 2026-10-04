@@ -254,7 +254,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         payload.emergency_contact_name = regEmergencyName;
         payload.emergency_contact_phone = regEmergencyPhone;
         payload.passport_number = regPassport || undefined;
-        payload.location_sharing_consent = true;
+        payload.location_sharing_consent = 'emergency_only';
       }
 
       const res = await api.register(payload);
